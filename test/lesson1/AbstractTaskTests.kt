@@ -130,9 +130,30 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+
         try {
             sortTemperatures("input/empty.txt", "temp.txt")
             assertFileContent("temp.txt", "")
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        try {
+            sortTemperatures("input/temp_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    -273.0
+                    -100.0
+                    0.0
+                    10.0
+                    95.6
+                    95.8
+                    100.0
+                    100.7
+                    500.0
+                """.trimIndent()
+            )
         } finally {
             File("temp.txt").delete()
         }
@@ -298,6 +319,26 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         try {
             sortSequence("input/empty.txt", "temp.txt")
             assertFileContent("temp.txt", "")
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortSequence("input/seq_in6.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                       2
+                       3
+                       4
+                       5
+                       2
+                       2
+                       1
+                       1
+                       1
+                       1
+                    """.trimIndent()
+            )
         } finally {
             File("temp.txt").delete()
         }
