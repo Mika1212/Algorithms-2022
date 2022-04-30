@@ -1,10 +1,10 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
@@ -16,6 +16,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     private final Object[] storage;
 
     private int size = 0;
+
+    private final Object deleted = new Object();
 
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
@@ -93,9 +95,23 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      *
      * Средняя
      */
+
+    //Сложность O(N)
+    //Память O(1)
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
+        int index = startingIndex(o);
+        Object current = storage[index];
+        while (current != null) {
+            if (current.equals(o)) {
+                storage[index] = deleted;
+                size--;
+                return true;
+            }
+            index = (index + 1) % capacity;
+            current = storage[index];
+        }
+        return false;
     }
 
     /**
@@ -111,7 +127,52 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     @NotNull
     @Override
     public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new OpenAddressingSetIterator();
+    }
+
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        private final int initSize;
+        private int numberOfPassedElements;
+        private int currentIndexOfElement;
+        private Object currentElement;
+
+        public OpenAddressingSetIterator() {
+            initSize = size();
+            numberOfPassedElements = 0;
+            currentIndexOfElement = -1;
+        }
+
+        //Сложность O(1)
+        //Память O(1)
+        @Override
+        public boolean hasNext() {
+            return numberOfPassedElements < initSize;
+        }
+
+        //Сложность O(N)
+        //Память O(1)
+        @SuppressWarnings("unchecked")
+        @Override
+        public T next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            numberOfPassedElements++;
+            currentIndexOfElement++;
+            currentElement = storage[currentIndexOfElement];
+            while (currentElement == null || currentElement == deleted) {
+                currentIndexOfElement++;
+                currentElement = storage[currentIndexOfElement];
+            }
+            return (T) currentElement;
+        }
+
+        //Сложность O(1)
+        //Память O(1)
+        @Override
+        public void remove() {
+            if (currentElement == null) throw new IllegalStateException();
+            currentElement = null;
+            storage[currentIndexOfElement] = deleted;
+            size--;
+        }
     }
 }
