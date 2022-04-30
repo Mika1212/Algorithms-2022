@@ -12,6 +12,7 @@ class TrieTest : AbstractTrieTest() {
     @Tag("Example")
     fun generalTestJava() {
         doGeneralTest()
+        doAdditionalIteratorRemoveTest()
     }
 
     @Test

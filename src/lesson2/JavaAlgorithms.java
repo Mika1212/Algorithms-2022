@@ -136,6 +136,7 @@ public class JavaAlgorithms {
      * Справка: простым считается число, которое делится нацело только на 1 и на себя.
      * Единица простым числом не считается.
      */
+
     //Сложность O(N*log(log(N)))
     //Память O(N)
     static public int calcPrimesNumber(int limit) {

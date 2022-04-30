@@ -1,7 +1,7 @@
 package lesson4;
 
 import java.util.*;
-import kotlin.NotImplementedError;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,8 +92,58 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     @NotNull
     @Override
     public Iterator<String> iterator() {
-        // TODO
-        throw new NotImplementedError();
+        return new TrieIterator();
+    }
+
+    public class TrieIterator implements Iterator<String> {
+        private final List<String> list;
+        private final int initSize;
+        private int numberOfPassedNodes;
+        private String currentNode;
+
+        //Сложность O(N)
+        private TrieIterator() {
+            list = new ArrayList<>();
+            initSize = size();
+            numberOfPassedNodes = 0;
+            addWordsInList("", root);
+        }
+
+        //Сложность O(1)
+        //Память O(1)
+        @Override
+        public boolean hasNext() {
+            return numberOfPassedNodes < initSize;
+        }
+
+        //Сложность O(1)
+        //Память O(1)
+        @Override
+        public String next() {
+            if (numberOfPassedNodes == initSize) throw new NoSuchElementException();
+            currentNode = list.get(numberOfPassedNodes);
+            numberOfPassedNodes++;
+            return currentNode;
+        }
+
+        //Сложность O(максимальная длина слова)
+        //Память O(1)
+        @Override
+        public void remove() {
+            if (currentNode == null) throw new IllegalStateException();
+            Trie.this.remove(currentNode);
+            currentNode = null;
+        }
+
+        private void addWordsInList(String str, Node node) {
+            for (char character: node.children.keySet()) {
+                if (character != (char) 0) {
+                    addWordsInList(str + character, node.children.get(character));
+                }
+                else list.add(str);
+            }
+        }
+
     }
 
 }
