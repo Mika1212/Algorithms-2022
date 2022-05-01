@@ -1,7 +1,10 @@
 package lesson6;
 
 import kotlin.NotImplementedError;
+import lesson6.impl.GraphBuilder;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -65,8 +68,25 @@ public class JavaGraphTasks {
      * |
      * J ------------ K
      */
+    //Сложность O(вершины*ребра)
+    //Память O(вершины)
     public static Graph minimumSpanningTree(Graph graph) {
-        throw new NotImplementedError();
+        HashSet<Graph.Vertex> includedVertices = new HashSet<>(graph.getVertices().size());
+        GraphBuilder resGraph = new GraphBuilder();
+
+        for (Graph.Vertex vertex: graph.getVertices()) {
+            for (Graph.Vertex neighborVertex: graph.getNeighbors(vertex)) {
+                if (!includedVertices.contains(neighborVertex)) {
+                    includedVertices.add(vertex);
+                    includedVertices.add(neighborVertex);
+                    resGraph.addVertex(vertex.getName());
+                    resGraph.addVertex(neighborVertex.getName());
+                    resGraph.addConnection(vertex, neighborVertex, 1);
+                }
+            }
+        }
+
+        return resGraph.build();
     }
 
     /**
@@ -117,10 +137,30 @@ public class JavaGraphTasks {
      *
      * Ответ: A, E, J, K, D, C, H, G, B, F, I
      */
+
+    //Сложность O(вершины*вершины)
+    //Память O(вершины)
     public static Path longestSimplePath(Graph graph) {
-        throw new NotImplementedError();
+        if (graph.getVertices().isEmpty()) return new Path();
+        Path resultPath = new Path();
+
+        for (Graph.Vertex vertex: graph.getVertices()){
+            resultPath = dfsPath(graph, vertex, new Path(vertex), resultPath);
+        }
+        return resultPath;
     }
 
+    private static Path dfsPath(Graph graph, Graph.Vertex vertex, Path path, Path resultPath) {
+        for (Graph.Vertex neighbor: graph.getNeighbors(vertex)) {
+            if (!path.contains(neighbor)) {
+                Path newPath = new Path(path, graph, neighbor);
+                if (newPath.getLength() > resultPath.getLength()) resultPath = newPath;
+                resultPath = dfsPath(graph, neighbor, newPath, resultPath);
+            }
+        }
+
+        return resultPath;
+    }
 
     /**
      * Балда
