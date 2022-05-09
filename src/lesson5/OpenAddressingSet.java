@@ -9,6 +9,8 @@ import java.util.Set;
 
 public class OpenAddressingSet<T> extends AbstractSet<T> {
 
+    private final Object deleted = new Object();
+
     private final int bits;
 
     private final int capacity;
@@ -16,8 +18,6 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     private final Object[] storage;
 
     private int size = 0;
-
-    private final Object deleted = new Object();
 
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
@@ -56,10 +56,10 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
 
     /**
      * Добавление элемента в таблицу.
-     *
+     * <p>
      * Не делает ничего и возвращает false, если такой же элемент уже есть в таблице.
      * В противном случае вставляет элемент в таблицу и возвращает true.
-     *
+     * <p>
      * Бросает исключение (IllegalStateException) в случае переполнения таблицы.
      * Обычно Set не предполагает ограничения на размер и подобных контрактов,
      * но в данном случае это было введено для упрощения кода.
@@ -69,7 +69,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current != deleted) {
             if (current.equals(t)) {
                 return false;
             }
